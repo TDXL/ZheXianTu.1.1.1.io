@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		canvas {
+			border: 1px solid red;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas width="600" height="400">升级浏览器</canvas>
+	<script>
+		var canvas = document.querySelector("canvas");
+		var context = canvas.getContext('2d');
+		
+        var data = [
+            {x:100,y:100},
+            {x:200,y:120},
+            {x:300,y:180},
+            {x:400,y:300},
+            {x:500,y:140}
+        ];
+        // 1 设置一些常数
+        var LineChart = function(){
+            this.context = context;
+            this.cWidth = canvas.width;
+            this.cHeight = canvas.height;
+            this.space = 20;
+            this.zeroX = this.space;
+            this.zeroY = this.cHeight - this.space;
+            // 箭头底和高
+            this.arrow = 10;
+            this.squre = 8;
+        }
+        // 2 画坐标轴
+        LineChart.prototype.drawAxis = function(){
+             // 绘制X轴
+            this.context.beginPath();
+            this.context.moveTo(this.zeroX,this.zeroY);
+            this.context.lineTo(this.cWidth-this.space,this.zeroY);
+            this.context.lineTo(this.cWidth-this.space - this.arrow,this.zeroY + this.arrow/2);
+            this.context.lineTo(this.cWidth-this.space - this.arrow,this.zeroY - this.arrow/2);
+            this.context.lineTo(this.cWidth-this.space,this.zeroY);
+            this.context.fill();
+            this.context.stroke();
+            // 绘制Y轴
+            this.context.beginPath();
+            this.context.moveTo(this.zeroX,this.zeroY);
+            this.context.lineTo(this.space,this.space);
+            this.context.lineTo(this.space - this.arrow/2,this.space+10);
+            this.context.lineTo(this.space + this.arrow/2,this.space+10);
+            this.context.lineTo(this.space,this.space);
+            this.context.fill();
+            this.context.stroke();
+        }
+
+        // 画数据点
+        LineChart.prototype.drawSquare = function(data){
+            this.context.beginPath();
+            this.context.fillRect(data.x-this.squre/2,data.y-this.squre/2,this.squre,this.squre);
+            
+        }
+        // 转换数据
+         LineChart.prototype.transformData = function(data){
+            // 缓存this
+            var _this = this;
+            // 1 声明一个空数组
+            var dataList = [];
+            // 2 遍历传入的数据
+            data.forEach(function(item,index){
+                dataList.push({
+                    x: item.x + _this.space,
+                    y: _this.zeroY - item.y
+                })
+            })
+            // 3 转换
+            // 4 存储
+            // 5 返回数组
+            return dataList;
+         }
+        //  画多个数据点
+        LineChart.prototype.drawPoints = function(data){
+            var _this = this;
+            var newArr = this.transformData(data);
+            newArr.forEach(function(item,index){
+                _this.drawSquare(item);
+                if(index==0){
+                    _this.drawLine(_this.zeroX,_this.zeroY,item.x,item.y);
+                }else {
+                    _this.drawLine(newArr[index-1].x,newArr[index-1].y,item.x,item.y)
+                }
+            })
+        }
+        // 画数据线
+         LineChart.prototype.drawLine = function(startX,startY,endX,endY){
+            this.context.beginPath();
+            this.context.moveTo(startX,startY);
+            this.context.lineTo(endX,endY);
+            
+            this.context.stroke();
+        }
+        new LineChart().drawAxis();
+        
+        new LineChart().drawPoints(data);
+        
+        
+        
+       
+	</script>
+</body>
+
+</html>
